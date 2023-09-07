@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book</title>
+</head>
+<body>
+<div id="app" class="demo-input-suffix">
+    <input type="button" value="发送Get请求" @click="showAll">
+    <input type="button" value="发送Post请求" @click="add">
+    <input type="button" value="发送Put请求" @click="update">
+    <input type="button" value="发送Delete请求" @click="Delete">
+    <a href="addBook.html"><input type="button" value="新增"></a>
+    <hr>
+
+    <el-popover
+            placement="right-start"
+            width="160px"
+            v-model="visible">
+        <el-form :model="book" :rules="rules" ref="ruleForm"  class="demo-ruleForm">
+            <el-form-item label="图书名称" prop="title">
+                <el-input
+                        placeholder="请输入内容"
+                        v-model="book.title"
+                        clearable>
+                </el-input>
+            </el-form-item>
+
+            <el-form-item label="作者" prop="author">
+                <el-input
+                        placeholder="请输入内容"
+                        v-model="book.author"
+                        clearable>
+                </el-input>
+            </el-form-item>
+            <el-form-item label="发布日期（yyyy-mm-dd hh:mm:ss）" prop="publicationDate">
+                <el-input
+                        placeholder="请输入日期"
+                        suffix-icon="el-icon-date"
+                        v-model="book.publicationDate">
+                </el-input>
+            </el-form-item>
+
+            <el-form-item label="价格" prop="price">
+                <el-input
+                        placeholder="请输入内容"
+                        v-model="book.price"
+                        clearable>
+                </el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="open2(),visible = false,submitForm('ruleForm')">提交</el-button>
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+            </el-form-item>
+        </el-form>
+        <el-button slot="reference">添加图书</el-button>
+    </el-popover>
+
+
+    <h3 style="text-align:center">数据库中表格情况</h3>
+    <Table border="1" cellspacing="0" width="800">
+        <tr>
+            <th>编号</th>
+            <th>书名</th>
+            <th>作者</th>
+            <th>发布日期</th>
+            <th>价格</th>
+        </tr>
+        <tr v-for="(book,i) in books" align="center">
+            <td>{{i+1}}</td>
+            <td>{{book.title}}</td>
+            <td>{{book.author}}</td>
+            <td>{{book.publicationDate}}</td>
+            <td>{{book.price}}</td>
+        </tr>
+    </Table>
+
+</div>
+<script src="js/axios-0.18.0.js"></script>
+<script src="js/vue.js"></script>
+<script src="element-ui/lib/index.js"></script>
+<link rel="stylesheet" href="element-ui/lib/theme-chalk/index.css">
+<script>
+    new Vue({
+        el: "#app",
+        data() {
+            return {
+                books: [],
+                visible: false,
+                book: {
+                    title: '',
+                    author: '',
+                    publicationDate: '',
+                    price: '',
+                },
+                rules: {
+                    title: [
+                        {required: true, message: '请输入图书名称', trigger: 'blur'},
+                    ],
+                    author: [
+                        {required: true, message: '请输入作者', trigger: 'blur'},
+                    ],
+                    publicationDate: [
+                        {type: 'date', required: true, message: '请输入发布日期', trigger: 'blur'}
+                    ],
+                    price: [
+                        {required: true, message: '请输入图书价格', trigger: 'blur'},
+                    ]
+                }
+            }
+        },
+        mounted() {
+            this.showAll();
+            // axios({
+            //     method: "get",
+            //     url: "http://localhost:8080/books"
+            // }).then(resp =>{
+            //     this.books = resp.data;
+            // })
+        },
+        methods:{
+            showAll(){
+                axios({
+                    method: "get",
+                    url: "http://localhost:8080/books"
+                }).then(resp =>{
+                    this.books = resp.data;
+                })
+            },
+            add(){
+                axios({
+                    method: "post",
+                    url: "http://localhost:8080/books"
+                }).then(resp =>{
+                    if (true == resp.data){
+                        this.showAll();
+                    }
+                })
+            },
+            update(){
+                axios({
+                    method: "put",
+                    url: "http://localhost:8080/books"
+                }).then(resp =>{
+                    if (true == resp.data){
+                        this.showAll();
+                    }
+                })
+            },
+            Delete(){
+                axios({
+                    method: "delete",
+                    url: "http://localhost:8080/books"
+                }).then(resp =>{
+                    if (true == resp.data){
+                        this.showAll();
+                    }
+                })
+            },
+
+            submitForm(){
+                axios({
+                    method: "post",
+                    url: "http://localhost:8080/books",
+                    data:this.book
+                }).then(resp =>{
+                    document.location.href="book.html";
+                })
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            },
+            open2() {
+                this.$message({
+                    message: '添加图书成功',
+                    type: 'success'
+                });
+            },
+
+        }
+    });
+</script>
+
+
+</body>
+</html>
